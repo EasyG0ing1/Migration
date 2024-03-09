@@ -1,6 +1,6 @@
 # Migration
 
-Migration is a utility that will take your static IP address mappings in OPNsense and migrate them over to the Kea DHCP server that comes with OPNsense version 24. Currently, it only does DHCP 4 statics ... I don't use DHCP v6 so make sure you examine the output file if you use v6 to make sure everything is correctly contained in the `<reservations>` xml tags.
+Migration is a utility that will take your static IP address mappings in OPNsense and migrate them over to the Kea DHCP server that comes with OPNsense version 24.
 
 ### Here is a video tutorial if that works best for you
 
@@ -36,4 +36,4 @@ Migration is a utility that will take your static IP address mappings in OPNsens
 If you have any problems you can create an issue.
 
 ### Contributing
-I didn't include DHCP V6 reservations because I don't use them. But it should be relatively easy to add that to the program if anyone is interested in taking that on. Create an Issue or a Pull Request if you want to contribute to the project.
+Create an Issue or a Pull Request if you want to contribute to the project.
