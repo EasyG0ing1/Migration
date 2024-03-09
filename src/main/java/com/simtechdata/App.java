@@ -27,12 +27,20 @@ import java.util.*;
 
 public class App {
 
-    private static String exeFolder = System.getProperty("user.dir");
-    private static Path outFile = Paths.get(exeFolder, "config_out.xml");
-    private static Path inFile = Paths.get(exeFolder, "config.xml");
+    private static final String exeFolder = System.getProperty("user.dir");
+    private static final Path outFile = Paths.get(exeFolder, "config_out.xml");
+    private static final Path inFile = Paths.get(exeFolder, "config.xml");
 
 
     public static void main(String[] args) throws Exception {
+
+        int test1 = -1 << 10;
+        int test2 = 1 << 10;
+        String binary1 = Integer.toBinaryString(test1).replaceAll("(.{8})","$1 ");
+        String binary2 = Integer.toBinaryString(test2).replaceAll("(.{8})","$1 ");
+        System.out.println(test1 + "\t" + binary1);
+        System.out.println(test2 + "\t\t" + binary2);
+        System.exit(0);
 
         if(args.length > 0) {
             if(args[0].toLowerCase().contains("check")) {
@@ -44,6 +52,13 @@ public class App {
         if(!check()) {
             System.exit(0);
         }
+
+
+        /**
+         * First thing to do is scour the config.xml file for the existing static IP assignments.
+         * Put them into the staticmaps List
+         */
+
 
         String xml = Files.readString(inFile);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -74,6 +89,13 @@ public class App {
             }
         }
 
+        /**
+         * Next, we get the list of subnets that were created in Kea so that we can check
+         * each static IP address against each subnet then assign the subnets UUID to the
+         * new record.
+         * Subnets go into the List, subnet4List (subnet4 being unique to Kea)
+         */
+
         NodeList dhcp4NodeList = doc.getElementsByTagName("dhcp4");
         Node dhcp4Node = dhcp4NodeList.item(0);
         Element dhcp4Element = (Element) dhcp4Node;
@@ -93,6 +115,15 @@ public class App {
             }
         }
 
+        /**
+         * Next, we iterate through the existing static assignments and do binary comparison against every
+         * subnet until one hits then we assign that subnets UUID to the new mapping. So the new mapping gets
+         * the ip address, the mac address, hostname and description. That is all done in the reservation object
+         * which goes into the reservationList.
+         * We do generate a random UUID for the new mapping because Kea likes to use them for record identifiers
+         * and the import process will be expecting to see a UUID for the record.
+         */
+
         List<Reservation> reservationList = new ArrayList<>();
         for (Staticmap staticMap : staticmaps) {
             Reservation reservation = new Reservation();
@@ -107,6 +138,11 @@ public class App {
             reservationList.add(reservation);
         }
 
+
+        /**
+         * Now we have everything we need. All that is left to do is use the POJOs and construct the Opnsense
+         * instance properly so that we can export it to our output file.
+         */
 
         Opnsense opnsense = new Opnsense();
         OPNsense opNsense = new OPNsense();
@@ -129,16 +165,38 @@ public class App {
         Files.writeString(outFile, newXML, Charset.defaultCharset());
     }
 
+    /**
+     * Generates one UUID for each Kea static mapping
+     * @return String
+     */
     private static String getUUID() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
 
-    private static byte[] applyMask(byte[] address, int mask) {
-        int addr = ByteBuffer.wrap(address).getInt();
-        return ByteBuffer.allocate(4).putInt(addr & mask).array();
+
+    /**
+     * This method loops through the subnets checking the IP address for a match.
+     * @param ipAddy - Pass it the IP address
+     * @param subnets - Pass it the list of subnets
+     * @return String
+     */
+    private static String getSubnet(String ipAddy, List<Subnet4> subnets) throws UnknownHostException {
+        // Iterate subnets and find out if the IP addy is in one of the subnets
+        for (Subnet4 subnet : subnets) {
+            if (ipInSubnet(ipAddy, subnet.getSubnet())) {
+                return subnet.getUuid();
+            }
+        }
+        throw new RuntimeException("IP Address " + ipAddy + " Does not have a matching subnet in Kea configuration. See help for more information");
     }
 
+    /**
+     * This does the "Heavy lifting" of checking the IP address against a given subnet address/mask.
+     * @param ipAddy - IP Address
+     * @param network - Network in the format xxx.xxx.xxx.xxx/xx
+     * @return String
+     */
     private static boolean ipInSubnet(String ipAddy, String network) throws UnknownHostException {
         String[] parts = network.split("/");
         String networkAddress = parts[0];
@@ -155,15 +213,21 @@ public class App {
         return networkMasked.getInt() == ipMasked.getInt();
     }
 
-    private static String getSubnet(String ipAddy, List<Subnet4> subnets) throws UnknownHostException {
-        for (Subnet4 subnet : subnets) {
-            if (ipInSubnet(ipAddy, subnet.getSubnet())) {
-                return subnet.getUuid();
-            }
-        }
-        throw new RuntimeException("IP Address " + ipAddy + " Does not have a matching subnet in Kea configuration. See help for more information");
+    /**
+     * This function was broken out of the ipInSubnet method for simplification
+     * @param address - byte array of the ip address
+     * @param mask - subnet mask in number of bits
+     * @return byte array
+     */
+    private static byte[] applyMask(byte[] address, int mask) {
+        int addr = ByteBuffer.wrap(address).getInt();
+        return ByteBuffer.allocate(4).putInt(addr & mask).array();
     }
 
+    /**
+     * This method checks the config.xml file to make sure it has everything needed to perform the migration.
+     * @return true if it passed, otherwise - false;
+     */
     private static boolean check() throws IOException, ParserConfigurationException, SAXException {
 
         if(!inFile.toFile().exists()) {
