@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.simtechdata</groupId>
+    <artifactId>Migration</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Migration</name>
+    <description>A Program for migrating ISC DHCP to Kea for OPNsense version 24</description>
+
+    <properties>
+        <imageName>migrate</imageName>
+        <mainClass>com.simtechdata.App</mainClass>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>21</java.version>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven-compiler-plugin>3.11.0</maven-compiler-plugin>
+        <maven-jar-plugin>3.3.0</maven-jar-plugin>
+        <exec-maven-plugin>3.1.0</exec-maven-plugin>
+        <versions-maven-plugin>2.16.2</versions-maven-plugin>
+        <maven-enforcer-plugin>3.4.1</maven-enforcer-plugin>
+        <native-maven-plugin>0.9.28</native-maven-plugin>
+        <maven-assembly-plugin>3.3.0</maven-assembly-plugin>
+        <graal.version>19.2.1</graal.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <!-- Maven Versions -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>display-dependency-updates</goal>
+                            <goal>display-plugin-updates</goal>
+                            <goal>property-updates-report</goal>
+                            <goal>dependency-updates-report</goal>
+                            <goal>plugin-updates-report</goal>
+                            <goal>update-properties</goal>
+                            <goal>use-latest-versions</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--Maven Enforcer Plugin-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.9.6</version>
+                                    <!--<version>3.9.5</version>-->
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin}</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+            <!-- Maven Assembly Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${mainClass}</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!--native profile-->
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>${maven-jar-plugin}</version>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>${mainClass}</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                    <!-- GraalVM Native Maven Plugin -->
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native-maven-plugin}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <imageName>${imageName}</imageName>
+                            <mainClass>${mainClass}</mainClass>
+                            <verbose>true</verbose>
+                            <imageName>${imageName}</imageName>
+                            <buildArgs>
+                                <arg>--no-fallback</arg>
+                                <arg>--verbose</arg>                                <arg>-H:+ReportExceptionStackTraces</arg>
+                                <arg>-H:ReflectionConfigurationFiles=/Users/michael/JetBrainsProjects/IntelliJIdea/Migration/graalvm/reflect-config.json</arg>
+                                <arg>-H:JNIConfigurationFiles=/Users/michael/JetBrainsProjects/IntelliJIdea/Migration/graalvm/jni-config.json</arg>
+                                <arg>-H:ResourceConfigurationFiles=/Users/michael/JetBrainsProjects/IntelliJIdea/Migration/graalvm/resource-config.json</arg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
