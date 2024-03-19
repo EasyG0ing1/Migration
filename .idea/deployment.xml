@@ -6,7 +6,7 @@
       <paths name="Locak">
         <serverdata>
           <mappings>
-            <mapping deploy="/IntelliJ/Migration" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/java/Migration" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
