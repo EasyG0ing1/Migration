@@ -52,6 +52,7 @@ public class App {
 
 
     public static void main(String[] args)  {
+        boolean argumentPassed = args.length > 0;
 
         if(args.length > 0) {
             for(String a : args) {
@@ -61,11 +62,18 @@ public class App {
                         check();
                         System.exit(0);
                     }
-                    case "v", "version", "--version", "-v", "-version" -> System.out.println("1.0.1");
+                    case "v", "version", "--version", "-v", "-version" -> {
+                        System.out.println("1.0.1");
+                        System.exit(0);
+                    }
+                    case "?", "--help", "-help", "help" -> help();
                 }
             }
         }
 
+        if(argumentPassed) {
+            help();
+        }
         if(!check()) {
             System.exit(0);
         }
@@ -455,5 +463,29 @@ public class App {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private static void help() {
+        String help = """
+                
+                Migration
+                ---------
+                
+                This is a tool to help you migrate from ISC DHCP server to the newer
+                Kea DHCP Server in OPNsense version 24. It will take the static IP
+                assignments that you currently have and convert them over to the 
+                Kea format which you can then import into OPNsense.
+                
+                For quick documentation, go to https://github.com/EasyG0ing1/Migration
+                
+                Possible arguments are:
+                
+                check           -   Verifies that your config.xml file is good to go
+                v, --version    -   get the version info.
+                ?, --help       -   This help
+
+                """;
+        System.out.println(help);
+        System.exit(0);
     }
 }
