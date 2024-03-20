@@ -42,6 +42,7 @@ public class App {
     private static final Path inFile = Paths.get(exeFolder, "config.xml");
     private static boolean isCheck = false;
     private static final String LF = System.getProperty("line.separator");
+    private static boolean writeFinal = true;
 
 
     public static void main(String[] args) {
@@ -55,16 +56,34 @@ public class App {
          * Put them into the staticmaps List
          */
         Document doc;
-        List<Staticmap> staticMappings;
+        List<Staticmap> staticMappings = null;
         List<Subnet4> subnet4List = new ArrayList<>();
         String configXML;
         try {
+            if(!inFile.toFile().exists()) {
+                System.out.println("The file " + inFile.toFile().getAbsolutePath() +LF + "Does not exist and is mandatory before this utility will work." + LF + "Run `migrate ?` for help.");
+                System.exit(0);
+            }
             configXML = Files.readString(inFile);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             doc = dBuilder.parse(new InputSource(new StringReader(configXML)));
+            if(doc == null) {
+                System.out.println("There was a problem with config.xml. You might try obtaining a clean cop from you OPNsense firewall.");
+                System.exit(0);
+            }
             NodeList staticMapNodeList = doc.getElementsByTagName("staticmap");
-            staticMappings = getStaticMappings(staticMapNodeList);
+            if (staticMapNodeList != null) {
+                staticMappings = getStaticMappings(staticMapNodeList);
+                if(staticMappings.isEmpty()) {
+                    System.out.println("There was a problem with your config.xml. Could not find any static IP address to migrate.");
+                    System.exit(0);
+                }
+            }
+            else {
+                System.out.println("There was a problem with config.xml. You might try obtaining a clean cop from you OPNsense firewall.");
+                System.exit(0);
+            }
 
             /**
              * Next, we get the list of subnets that were created in Kea so that we can check
@@ -73,6 +92,11 @@ public class App {
              * Subnets go into the List, subnet4List (subnet4 being unique to Kea)
              */
             NodeList subnet4NodeList = doc.getElementsByTagName("subnet4");
+
+            if (subnet4NodeList == null || subnet4NodeList.getLength() < 1) {
+                System.out.println("There was a problem with your config.xml file, no Kea subnets found." + LF + "Did you create them before downloading config.xml?");
+                System.exit(0);
+            }
             for (int i = 0; i < subnet4NodeList.getLength(); i++) {
                 Node subnet4Node = subnet4NodeList.item(i);
                 Element subnet4Element = (Element) subnet4Node;
@@ -107,7 +131,6 @@ public class App {
                 Reservation rsv = new Reservation();
                 String ipAddy = m.getIpaddr();
                 rsv.setUuid(getUUID());
-                rsv.setSubnet(ipAddy);
                 rsv.setHw_Address(m.getMac());
                 rsv.setIp_Address(m.getIpaddr());
                 rsv.setHostname(m.getHostname());
@@ -125,8 +148,9 @@ public class App {
 
 
         /**
-         * Now we have everything we need. All that is left to do is use the POJOs and construct the Opnsense
-         * instance properly so that we can export it to our output file.
+         * With everything set up, we simply use reservationList to create an instance of
+         * the Reservations class, which is used as the template to generate the XML data
+         * that replaces the reservations node in the config.xml file.
          */
 
         try {
@@ -136,14 +160,9 @@ public class App {
             StringWriter writer = new StringWriter();
             mapper.writeValue(writer, reservations);
             String rInstanceXml = writer.toString();
-            String newConfigXML;
-            if (configXML.contains("<reservations")) {
-                newConfigXML = configXML.replaceFirst("<reservations/>", rInstanceXml);
-            }
-            else {
-                newConfigXML = configXML.replaceFirst("<reservations>[\\s\\S]*?</reservations>", rInstanceXml);
-            }
-
+            String newConfigXML = configXML.contains("<reservations/>") ?
+                    configXML.replaceFirst("<reservations/>", rInstanceXml) :
+                    configXML.replaceFirst("<reservations>[\\s\\S]*?</reservations>", rInstanceXml);
             TransformerFactory tf = TransformerFactory.newInstance();
             Transformer transformer = tf.newTransformer();
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -155,8 +174,13 @@ public class App {
             String pattern = "\\r?\\n\\s+\\r?\\n";
             String prettyXML = writer.toString().replaceAll(pattern, LF);
             outFile.toFile().createNewFile();
-            Files.writeString(outFile, prettyXML, Charset.defaultCharset());
-            System.out.println("File written:" + LF + LF + "\t" + outFile.toFile().getName() + LF + LF + "Restore that file into OPNsense");
+            if(writeFinal) {
+                Files.writeString(outFile, prettyXML, Charset.defaultCharset());
+                System.out.println("File written:" + LF + LF + "\t" + outFile.toFile().getName() + LF + LF + "Restore that file into OPNsense");
+            }
+            else {
+                System.out.println("Out file was NOT written due to one or more problems");
+            }
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -218,7 +242,7 @@ public class App {
                         System.exit(0);
                     }
                     case "v", "version", "--version", "-v", "-version" -> {
-                        System.out.println("2.0.0");
+                        System.out.println("2.0.1");
                         System.exit(0);
                     }
                     case "?", "--help", "-help", "help" -> help();
@@ -255,7 +279,9 @@ public class App {
                     return subnet.getUuid();
                 }
             }
-            throw new RuntimeException("IP Address " + ipAddy + " Does not have a matching subnet in Kea configuration. See help for more information");
+            System.out.println("IP Address " + ipAddy + " Does not have a matching subnet in Kea configuration. See help for more information.");
+            writeFinal = false;
+            return "";
         }
         catch (NullPointerException ne) {
             ne.printStackTrace();

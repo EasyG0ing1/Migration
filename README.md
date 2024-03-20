@@ -32,6 +32,9 @@ Create an Issue or a Pull Request if you want to contribute to the project.
 
 ### Updates
 
+* 2.0.1
+  * Minor enhancements
+
 * 2.0.0
   * Streamlined use of XML library, eliminating unnecessary calls.
   * Program now outputs a file that can be directly imported into OPNsense
