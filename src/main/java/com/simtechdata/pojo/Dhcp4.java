@@ -1,9 +1,6 @@
 package com.simtechdata.pojo;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-import java.util.HashMap;
-import java.util.Map;
 public class Dhcp4 {
     private Reservations reservations;
     private Subnets subnets;
@@ -26,15 +23,5 @@ public class Dhcp4 {
     }
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("  <dhcp4 version=\"1.0.0\">\n");
-        sb.append(subnets.toString());
-        sb.append(reservations.toString());
-        sb.append("      </dhcp4>\n");
-        return sb.toString();
     }
 }

@@ -41,3 +41,5 @@ build/
 /dograal.sh
 /config.xml
 /config_out.xml
+/config_backup.xml
+/new_config.xml

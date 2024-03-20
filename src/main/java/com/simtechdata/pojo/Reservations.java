@@ -1,25 +1,23 @@
 package com.simtechdata.pojo;
-import java.util.ArrayList;
-import java.util.HashMap;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
 import java.util.List;
-import java.util.Map;
+
+@JacksonXmlRootElement(localName = "reservations")
 public class Reservations {
-    private List<Reservation> reservation = new ArrayList<Reservation>();
+
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "reservation")
+    private final List<Reservation> reservation;
+
+    public Reservations(List<Reservation> reservation) {
+        this.reservation = reservation;
+    }
+
     public List<Reservation> getReservation() {
         return reservation;
     }
-    public void setReservation(List<Reservation> reservation) {
-        this.reservation = reservation;
-    }
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("        <reservations>\n");
-        for(Reservation rev : reservation) {
-            sb.append(rev.toString());
-        }
-        sb.append("        </reservations>\n");
-        return sb.toString();
-    }
-
 }
