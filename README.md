@@ -62,7 +62,7 @@ Create an Issue or a Pull Request if you want to contribute to the project.
 ### Updates
 
 * 2.1.1
-  * Added clear and expanded error messages so that any problems that might happen should always present the user with an exact cause of the problem along with instruction of how to correct the problem
+  * Added clear and expanded error messages so that any problems that might happen should always present the user with a clear and exact cause of the problem along with instructions explaining how to correct the problem
 
 * 2.1.0
   * Removed the need to run a check before doing the migration
