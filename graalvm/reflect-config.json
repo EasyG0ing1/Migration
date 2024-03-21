@@ -1,5 +1,29 @@
 [
 {
+  "name":"[Lcom.fasterxml.jackson.databind.deser.BeanDeserializerModifier;"
+},
+{
+  "name":"[Lcom.fasterxml.jackson.databind.ser.BeanSerializerModifier;"
+},
+{
+  "name":"com.fasterxml.jackson.databind.ext.Java7SupportImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.simtechdata.pojo.Reservation",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"getDescription","parameterTypes":[] }, {"name":"getHostname","parameterTypes":[] }, {"name":"getHw_Address","parameterTypes":[] }, {"name":"getIp_Address","parameterTypes":[] }, {"name":"getSubnet","parameterTypes":[] }, {"name":"getUuid","parameterTypes":[] }]
+},
+{
+  "name":"com.simtechdata.pojo.Reservations",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"getReservation","parameterTypes":[] }]
+},
+{
   "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -9,6 +33,10 @@
 },
 {
   "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicReference",
+  "fields":[{"name":"value"}]
 },
 {
   "name":"sun.security.provider.NativePRNG",

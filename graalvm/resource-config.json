@@ -1,9 +1,15 @@
 {
   "resources":{
   "includes":[{
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/java.nio.charset.spi.CharsetProvider\\E"
   }, {
     "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLOutputFactory\\E"
   }, {
     "pattern":"\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
   }, {
@@ -11,6 +17,6 @@
   }]},
   "bundles":[{
     "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
-    "locales":[""]
+    "locales":["und"]
   }]
 }

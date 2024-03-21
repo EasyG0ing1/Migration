@@ -43,3 +43,12 @@ build/
 /config_out.xml
 /config_backup.xml
 /new_config.xml
+/config_no_statics.xml
+/config_no_subnets.xml
+/migrate
+/graal1/
+/graal2/
+/graal3/
+/config_no_statics_hard.xml
+/config_no_subnets_hard.xml
+/test.sh

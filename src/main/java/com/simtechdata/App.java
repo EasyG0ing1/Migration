@@ -34,6 +34,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class App {
 
@@ -42,14 +44,10 @@ public class App {
     private static final Path inFile = Paths.get(exeFolder, "config.xml");
     private static boolean isCheck = false;
     private static final String LF = System.getProperty("line.separator");
-    private static boolean writeFinal = true;
 
 
     public static void main(String[] args) {
         processArgs(args);
-        if (!check()) {
-            System.exit(0);
-        }
 
         /**
          * First thing to do is scour the config.xml file for the existing static IP assignments.
@@ -58,31 +56,31 @@ public class App {
         Document doc;
         List<Staticmap> staticMappings = null;
         List<Subnet4> subnet4List = new ArrayList<>();
-        String configXML;
+        String configXML = "";
         try {
-            if(!inFile.toFile().exists()) {
-                System.out.println("The file " + inFile.toFile().getAbsolutePath() +LF + "Does not exist and is mandatory before this utility will work." + LF + "Run `migrate ?` for help.");
-                System.exit(0);
+            if (!inFile.toFile().exists()) {
+                System.out.println(Message.NO_CONFIG_FILE);
+                System.exit(1);
             }
             configXML = Files.readString(inFile);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             doc = dBuilder.parse(new InputSource(new StringReader(configXML)));
-            if(doc == null) {
-                System.out.println("There was a problem with config.xml. You might try obtaining a clean cop from you OPNsense firewall.");
-                System.exit(0);
+            if (doc == null) {
+                System.out.println(Message.GENERIC_CONFIG_XML);
+                System.exit(1);
             }
             NodeList staticMapNodeList = doc.getElementsByTagName("staticmap");
-            if (staticMapNodeList != null) {
+            if (staticMapNodeList != null && staticMapNodeList.getLength() > 0) {
                 staticMappings = getStaticMappings(staticMapNodeList);
-                if(staticMappings.isEmpty()) {
-                    System.out.println("There was a problem with your config.xml. Could not find any static IP address to migrate.");
-                    System.exit(0);
+                if (staticMappings.isEmpty()) {
+                    System.out.println(Message.STATIC_MAP_NO_IP);
+                    System.exit(1);
                 }
             }
             else {
-                System.out.println("There was a problem with config.xml. You might try obtaining a clean cop from you OPNsense firewall.");
-                System.exit(0);
+                System.out.println(Message.CONFIG_NO_STATIC_MAPS);
+                System.exit(1);
             }
 
             /**
@@ -93,26 +91,54 @@ public class App {
              */
             NodeList subnet4NodeList = doc.getElementsByTagName("subnet4");
 
-            if (subnet4NodeList == null || subnet4NodeList.getLength() < 1) {
-                System.out.println("There was a problem with your config.xml file, no Kea subnets found." + LF + "Did you create them before downloading config.xml?");
-                System.exit(0);
+            if (subnet4NodeList != null && subnet4NodeList.getLength() > 0) {
+                for (int i = 0; i < subnet4NodeList.getLength(); i++) {
+                    Node subnet4Node = subnet4NodeList.item(i);
+                    Element subnet4Element = (Element) subnet4Node;
+                    if (subnet4Element != null) {
+                        String uuid = subnet4Element.getAttribute("uuid");
+                        NodeList sub4List = subnet4Element.getElementsByTagName("subnet");
+                        if (sub4List != null && sub4List.getLength() > 0) {
+                            Node node = sub4List.item(0);
+                            if (node != null) {
+                                String subnet = node.getTextContent();
+                                subnet4List.add(new Subnet4(subnet, uuid));
+                            }
+                            else {
+                                System.out.println(Message.SUBNET_PROBLEMS_HAVING_GUID);
+                                System.exit(1);
+                            }
+                        }
+                        else {
+                            System.out.println(Message.SUBNET_PROBLEMS_HAVING_GUID);
+                            System.exit(1);
+                        }
+                    }
+                    else {
+                        System.out.println(Message.SUBNET_EXPECTED_BUT_NOT_FOUND);
+                        System.exit(1);
+                    }
+                }
             }
-            for (int i = 0; i < subnet4NodeList.getLength(); i++) {
-                Node subnet4Node = subnet4NodeList.item(i);
-                Element subnet4Element = (Element) subnet4Node;
-                String uuid = subnet4Element.getAttribute("uuid");
-                String subnet = subnet4Element.getElementsByTagName("subnet").item(0).getTextContent();
-                subnet4List.add(new Subnet4(subnet, uuid));
+            else {
+                System.out.println(Message.NO_KEA_SUBNETS_FOUND);
+                System.exit(1);
             }
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
         catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
         catch (SAXException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
 
 
@@ -139,16 +165,20 @@ public class App {
                 reservationList.add(rsv);
             }
         }
-        catch (NullPointerException ne) {
-            ne.printStackTrace();
+        catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
 
 
         /**
-         * With everything set up, we simply use reservationList to create an instance of
+         * With everything in place, we simply use reservationList to create an instance of
          * the Reservations class, which is used as the template to generate the XML data
          * that replaces the reservations node in the config.xml file.
          */
@@ -160,37 +190,44 @@ public class App {
             StringWriter writer = new StringWriter();
             mapper.writeValue(writer, reservations);
             String rInstanceXml = writer.toString();
-            String newConfigXML = configXML.contains("<reservations/>") ?
-                    configXML.replaceFirst("<reservations/>", rInstanceXml) :
-                    configXML.replaceFirst("<reservations>[\\s\\S]*?</reservations>", rInstanceXml);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            StreamSource source = new StreamSource(new StringReader(newConfigXML));
-            writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            transformer.transform(source, result);
-            String pattern = "\\r?\\n\\s+\\r?\\n";
-            String prettyXML = writer.toString().replaceAll(pattern, LF);
-            outFile.toFile().createNewFile();
-            if(writeFinal) {
+            if (configXML.contains("<reservations/>") || configXML.contains("<reservations>")) {
+                String newConfigXML = configXML.contains("<reservations/>") ?
+                        configXML.replaceFirst("<reservations/>", rInstanceXml) :
+                        configXML.replaceFirst("<reservations>[\\s\\S]*?</reservations>", rInstanceXml);
+                TransformerFactory tf = TransformerFactory.newInstance();
+                Transformer transformer = tf.newTransformer();
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                StreamSource source = new StreamSource(new StringReader(newConfigXML));
+                writer = new StringWriter();
+                StreamResult result = new StreamResult(writer);
+                transformer.transform(source, result);
+                String pattern = "\\r?\\n\\s+\\r?\\n";
+                String prettyXML = writer.toString().replaceAll(pattern, LF);
+                outFile.toFile().createNewFile();
                 Files.writeString(outFile, prettyXML, Charset.defaultCharset());
-                System.out.println("File written:" + LF + LF + "\t" + outFile.toFile().getName() + LF + LF + "Restore that file into OPNsense");
+                System.out.println(Message.SUCCESS);
+                System.exit(0);
             }
             else {
-                System.out.println("Out file was NOT written due to one or more problems");
+                System.out.println(Message.CONFIG_NO_RESERVATIONS);
+                System.exit(1);
             }
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
         catch (NullPointerException ne) {
             ne.printStackTrace();
-            throw ne;
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
         }
     }
 
@@ -201,29 +238,107 @@ public class App {
      * @return List
      */
     private static List<Staticmap> getStaticMappings(NodeList nodeList) {
+        if (nodeList == null) {
+            System.out.println(Message.NO_STATIC_MAP);
+            System.exit(1);
+        }
         List<Staticmap> staticmaps = new ArrayList<>();
         for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            Element element = (Element) node;
-            String macAddress = element.getElementsByTagName("mac").item(0).getTextContent();
-            String ipAddress = element.getElementsByTagName("ipaddr").item(0).getTextContent();
+            try {
+                Node node = nodeList.item(i);
+                if (node != null) {
+                    Element element = (Element) node;
+                    NodeList macNodeList = element.getElementsByTagName("mac");
+                    Node macNode = macNodeList.item(0);
 
-            Staticmap staticmap = new Staticmap(ipAddress, macAddress);
+                    if (macNodeList == null || macNode == null) {
+                        System.out.println(Message.GENERIC_NODE_NOT_FOUND("<mac>", "mac"));
+                        System.exit(1);
+                    }
 
-            NodeList hostnameNodeList = element.getElementsByTagName("hostname");
-            if (hostnameNodeList.getLength() > 0) {
-                staticmap.setHostname(hostnameNodeList.item(0).getTextContent());
+                    NodeList ipNodeList = element.getElementsByTagName("ipaddr");
+                    Node ipNode = ipNodeList.item(0);
+
+                    if (ipNodeList == null || ipNode == null) {
+                        System.out.println(Message.GENERIC_NODE_NOT_FOUND("<ipaddr>", "ip"));
+                        System.exit(1);
+                    }
+
+                    String macAddress = macNode.getTextContent();
+                    String ipAddress = ipNode.getTextContent();
+
+                    if (!validMac(macAddress)) {
+                        System.out.println(Message.INVALID_MAC_ADDRESS(macAddress));
+                        System.exit(1);
+                    }
+
+                    if (!validIPAddress(ipAddress)) {
+                        System.out.println(Message.INVALID_IP_ADDRESS(ipAddress));
+                        System.exit(1);
+                    }
+
+                    Staticmap staticmap = new Staticmap(ipAddress, macAddress);
+
+                    if (staticmap == null) {
+                        System.out.println(Message.NULL_STATIC_MAP);
+                        System.exit(1);
+                    }
+
+                    NodeList hostnameNodeList = element.getElementsByTagName("hostname");
+                    if (hostnameNodeList.getLength() > 0) {
+                        staticmap.setHostname(hostnameNodeList.item(0).getTextContent());
+                    }
+
+                    NodeList descriptionNodeList = element.getElementsByTagName("descr");
+                    if (descriptionNodeList.getLength() > 0) {
+                        staticmap.setDescription(descriptionNodeList.item(0).getTextContent());
+                    }
+
+                    staticmaps.add(staticmap);
+                }
+                else {
+                    System.out.println(Message.NO_STATIC_MAP);
+                    System.exit(1);
+                }
             }
-
-            NodeList descriptionNodeList = element.getElementsByTagName("descr");
-            if (descriptionNodeList.getLength() > 0) {
-                staticmap.setDescription(descriptionNodeList.item(0).getTextContent());
+            catch (NullPointerException e) {
+                e.printStackTrace();
+                System.out.println(Message.CREATE_ISSUE);
+                System.exit(1);
             }
-
-            staticmaps.add(staticmap);
         }
         return staticmaps;
     }
+
+    private static boolean validMac(String macAddress) {
+        Matcher m = Pattern.compile("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}").matcher(macAddress);
+        return m.matches();
+    }
+
+    private static boolean validIPAddress(String ipAddress) {
+        boolean ipValid = false;
+        Matcher m = Pattern.compile("([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})").matcher(ipAddress);
+        if (m.find()) {
+            String oStr1 = m.group(1);
+            String oStr2 = m.group(2);
+            String oStr3 = m.group(3);
+            String oStr4 = m.group(4);
+
+            int octet1 = Integer.parseInt(oStr1);
+            int octet2 = Integer.parseInt(oStr2);
+            int octet3 = Integer.parseInt(oStr3);
+            int octet4 = Integer.parseInt(oStr4);
+
+            boolean o1Valid = octet1 >= 0 && octet1 <= 255;
+            boolean o2Valid = octet2 >= 0 && octet2 <= 255;
+            boolean o3Valid = octet3 >= 0 && octet3 <= 255;
+            boolean o4Valid = octet4 >= 0 && octet4 <= 255;
+
+            ipValid = o1Valid && o2Valid && o3Valid && o4Valid;
+        }
+        return ipValid;
+    }
+
 
     /**
      * Handles the command line arguments when the program is first run
@@ -237,22 +352,23 @@ public class App {
                 String arg = a.toLowerCase();
                 switch (arg) {
                     case "check" -> {
+                        System.out.println("Check is no longer necessary...");
                         isCheck = true;
-                        check();
-                        System.exit(0);
                     }
                     case "v", "version", "--version", "-v", "-version" -> {
-                        System.out.println("2.0.1");
+                        System.out.println("2.1.1");
                         System.exit(0);
                     }
                     case "?", "--help", "-help", "help" -> help();
+                    case "howto", "how", "--how", "--howto" -> howTo();
                 }
             }
         }
-        if (argumentPassed) {
+        if (argumentPassed && !isCheck) {
             help();
         }
     }
+
 
     /**
      * Generates one UUID for each Kea static mapping
@@ -279,16 +395,20 @@ public class App {
                     return subnet.getUuid();
                 }
             }
-            System.out.println("IP Address " + ipAddy + " Does not have a matching subnet in Kea configuration. See help for more information.");
-            writeFinal = false;
+            System.out.println(Message.IP_HAS_NO_SUBNET(ipAddy));
+            System.exit(1);
             return "";
         }
         catch (NullPointerException ne) {
             ne.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
             throw ne;
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
             throw e;
         }
     }
@@ -317,15 +437,22 @@ public class App {
             return networkMasked.getInt() == ipMasked.getInt();
         }
         catch (UnknownHostException e) {
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
             throw new RuntimeException(e);
         }
-        catch (NullPointerException ne) {
-            ne.printStackTrace();
-            throw ne;
+        catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
+            throw new RuntimeException(e);
         }
         catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
+            throw new RuntimeException(e);
         }
     }
 
@@ -341,65 +468,17 @@ public class App {
             int addr = ByteBuffer.wrap(address).getInt();
             return ByteBuffer.allocate(4).putInt(addr & mask).array();
         }
-        catch (NullPointerException ne) {
-            ne.printStackTrace();
-            throw ne;
+        catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
+            throw new RuntimeException(e);
         }
         catch (Exception e) {
             e.printStackTrace();
-            throw e;
-        }
-    }
-
-    /**
-     * This method checks the config.xml file to make sure it has everything needed to perform the migration.
-     *
-     * @return true if it passed, otherwise - false;
-     */
-    private static boolean check() {
-        try {
-            if (!inFile.toFile().exists()) {
-                System.out.println("I do not see the config.xml file. It needs to be in this folder: " + inFile.toAbsolutePath());
-                return false;
-            }
-
-            String xml = Files.readString(inFile);
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(new InputSource(new StringReader(xml)));
-            NodeList oldStaticsNodeList = doc.getElementsByTagName("staticmap");
-            NodeList subnetsNodeList = doc.getElementsByTagName("subnet4");
-            boolean haveStaticsToMap = oldStaticsNodeList != null && oldStaticsNodeList.getLength() > 0;
-            boolean haveNewSubnets = subnetsNodeList != null && subnetsNodeList.getLength() > 0;
-            if (isCheck) {
-                if (haveStaticsToMap && haveNewSubnets) {
-                    System.out.println("Your config file has the necessary information to do the migration.");
-                }
-                if (!haveStaticsToMap) {
-                    System.out.println("I do not see any DHCP static IP addresses to port over to Kea DHCP server.");
-                }
-                if (!haveNewSubnets) {
-                    System.out.println("I do not see the new subnets created in the Kea DHCP server config.");
-                }
-            }
-            return haveNewSubnets && haveStaticsToMap;
-        }
-        catch (IOException e) {
+            System.out.println(Message.CREATE_ISSUE);
+            System.exit(1);
             throw new RuntimeException(e);
-        }
-        catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-        catch (SAXException e) {
-            throw new RuntimeException(e);
-        }
-        catch (NullPointerException ne) {
-            ne.printStackTrace();
-            throw ne;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 
@@ -407,26 +486,17 @@ public class App {
      * Prints the help message to console and exits
      */
     private static void help() {
-        String help = """
-                                
-                Migration
-                ---------
-                                
-                This is a tool to help you migrate from ISC DHCP server to the newer
-                Kea DHCP Server in OPNsense version 24. It will take the static IP
-                assignments that you currently have and convert them over to the
-                Kea format which you can then import into OPNsense.
-                                
-                For quick documentation, go to https://github.com/EasyG0ing1/Migration
-                                
-                Possible arguments are:
-                                
-                check           -   Verifies that your config.xml file is good to go
-                v, --version    -   get the version info.
-                ?, --help       -   This help
-
-                """;
-        System.out.println(help);
+        System.out.println(Message.HELP);
         System.exit(0);
     }
+
+    /**
+     * Prints the How to message to console and exits
+     */
+    private static void howTo() {
+        System.out.println(Message.HOW_TO);
+        System.exit(0);
+    }
+
+
 }
