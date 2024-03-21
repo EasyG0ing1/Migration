@@ -12,7 +12,7 @@ Migration is a utility that will take your static IP address mappings in OPNsens
 
 1) [Download the program](https://github.com/EasyG0ing1/Migration/releases/latest) for your operating system (they are native binaries, no need for a Java runtime environment).
     * Create a clean folder to put the program in
-2) From your OPNsense interface, go to Kea DHCP / Kea DHCPv4 / Subnets
+2) From your OPNsense interface, go to Services / Kea DHCP / Kea DHCPv4 Then Subnets on the right
 3) Define all of your subnets and their IP Pools.
     * The tool uses those newly created subnets to automatically assign your current reservations to the correct subnet.
 4) Apply those changes
