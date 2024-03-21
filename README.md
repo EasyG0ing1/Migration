@@ -61,8 +61,9 @@ curl -s "https://get.sdkman.io" | bash
 - It will give you a command to copy and paste into terminal that will source the config, or simply restart your terminal.
 - Next, install GraalVM v21
 ```shell
-sdk install java 21.0.2-graal (this takes about a minute-ish)
+sdk install java 21.0.2-graal
 ```
+(this takes about a minute-ish)
 - Install Maven
   - Pick a folder to hold the maven file tree
   - Go into that folder
@@ -80,14 +81,15 @@ export PATH="/My/Path/To/maven3.9.6/bin":$PATH
 - Run this and expect the output shown here
 ```shell
 mvn --version
-
-
+```
+Output
+```text
 Apache Maven 3.9.6
 Maven home: /My/Path/To/maven3.9.6/libexec
 Java version: 21, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/graalvm-jdk-21+35.1/Contents/Home
 ```
 
-- If you're using MacOS and you DON'T have the xcode command line tools installed, you need to install this
+- If you're using MacOS and you DON'T have the xcode command line tools installed, run this
 ```shell
 xcode-select install
 ```
