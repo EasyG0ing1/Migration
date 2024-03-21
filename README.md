@@ -43,8 +43,7 @@ No guarantees with older versions of these operating systems.
 * Loads existing static maps into memory from the `staticmap` xml node
 * Loads the Kea subnets from the `subnet4` xml node
 * Iterates through each static mapping
-  * Calculates subnet using the IP address and it's subnet mask
-  * Looks for a matching Kea subnet
+  * Compares each IP address with the Kea Subnets you created looking for a match
   * Creates a new Kea DHCP static mapping using the subnet UUID from the matched subnet
   * Assigns a new random UUID to the new static map for Kea
 * Converts the new mappings into xml under the node name `reservations`
