@@ -52,6 +52,68 @@ No guarantees with older versions of these operating systems.
 
 Every step along the way is checked for problems and if any are found, the program tells you exactly what you need to look for to settle the problem.
 
+## Compiling
+If you are a glutton for punishment and you want to compile the code yourself, these instructions will work for MacOS and Linux (sorry Windows, no love today :-)
+- First, install SDK Man
+```shell
+curl -s "https://get.sdkman.io" | bash
+```
+- It will give you a command to copy and paste into terminal that will source the config, or simply restart your terminal.
+- Next, install GraalVM v21
+```shell
+sdk install java 21.0.2-graal (this takes about a minute-ish)
+```
+- Install Maven
+  - Pick a folder to hold the maven file tree
+  - Go into that folder
+```shell
+cd /My/Folder
+wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip
+unzip apache-maven-3.9.6-bin.zip
+mv apache-maven-3.9.6 maven3.9.6
+```
+- Edit whatever file you use to run exports when your shell starts and add
+```shell
+export PATH="/My/Path/To/maven3.9.6/bin":$PATH
+```
+- Run that command in your terminal too so that you don't need to restart terminal
+- Run this and expect the output shown here
+```shell
+mvn --version
+
+
+Apache Maven 3.9.6
+Maven home: /My/Path/To/maven3.9.6/libexec
+Java version: 21, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/graalvm-jdk-21+35.1/Contents/Home
+```
+
+- If you're using MacOS and you DON'T have the xcode command line tools installed, you need to install this
+```shell
+xcode-select install
+```
+- And it will take a LOOOONG time to finish - possibly up to 20 minutes or longer. Get some coffee or water or popcorn ...
+- If you're using Linux, then you need to install this
+```shell
+sudo apt update
+sudo apt install build-essential libz-dev zlib1g-dev -y
+```
+- This won't take too long to install
+  - We're back to ALL OS's from here
+- Next, go into a folder you can clone this repository into then
+```shell
+git clone https://github.com/EasyG0ing1/Migration.git
+cd Migration
+mvn clean -Pnative native:compile
+ls -l target
+```
+- You should see the `migrate` binary in the target folder.
+- You may need to set it as executable
+ ```shell
+chmod +x migrate
+```
+
+Depending on your machine, the compiling process can take anywhere from a minute or so up to several minutes or even well over 10 minutes. It all depends on your processor and your memory.
+
 ### Issues
 If you have any problems that you can't figure out, create an issue and I will be happy to assist.
 
