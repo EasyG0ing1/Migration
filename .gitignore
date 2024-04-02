@@ -45,5 +45,3 @@ build/
 /migrate
 /native.sh
 /test.sh
-/src/main/java/com/simtechdata/config.xml
-/src/main/java/com/simtechdata/config_kea.xml
