@@ -6,7 +6,7 @@ Migration is a utility that will take your static IP address mappings in OPNsens
 
 ### Here is a video tutorial if that works best for you
 
-[<img src="img/VideoThumb.png" width="100%">](https://youtu.be/qoGY6--vEK4)
+[<img src="img/VideoThumb.png" width="100%">](https://youtu.be/9yLQezDKVoY)
 
 ### This is a simple tool to use:
 
