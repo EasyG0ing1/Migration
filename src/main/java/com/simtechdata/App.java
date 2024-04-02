@@ -39,12 +39,12 @@ import static java.lang.StringTemplate.STR;
 
 public class App {
 
-    private static final String exeFolder = System.getProperty("user.dir");
-    private static final Path outFile = Paths.get(exeFolder,"new_config.xml");
-    private static final Path inFile = Paths.get(exeFolder, "config.xml");
-    private static boolean isCheck = false;
-    private static boolean debug = false;
-    private static final String LF = System.getProperty("line.separator");
+    private static final String EXE_FOLDER = System.getProperty("user.dir");
+    private static final Path OUT_FILE     = Paths.get(EXE_FOLDER, "new_config.xml");
+    private static final Path IN_FILE      = Paths.get(EXE_FOLDER, "config.xml");
+    private static final String LF         = System.getProperty("line.separator");
+    private static boolean isCheck         = false;
+    private static boolean debug           = false;
 
 
     public static void main(String[] args) {
@@ -59,11 +59,11 @@ public class App {
         List<Subnet4> subnet4List = new ArrayList<>();
         String configXML = "";
         try {
-            if (!inFile.toFile().exists()) {
+            if (!IN_FILE.toFile().exists()) {
                 System.out.println(Message.NO_CONFIG_FILE);
                 System.exit(1);
             }
-            configXML = Files.readString(inFile);
+            configXML = Files.readString(IN_FILE);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             doc = dBuilder.parse(new InputSource(new StringReader(configXML)));
@@ -227,8 +227,8 @@ public class App {
                 transformer.transform(source, result);
                 String pattern = "\\r?\\n\\s+\\r?\\n";
                 String prettyXML = writer.toString().replaceAll(pattern, LF);
-                outFile.toFile().createNewFile();
-                Files.writeString(outFile, prettyXML, Charset.defaultCharset());
+                OUT_FILE.toFile().createNewFile();
+                Files.writeString(OUT_FILE, prettyXML, Charset.defaultCharset());
                 System.out.println(Message.SUCCESS);
                 System.exit(0);
             }
@@ -362,7 +362,6 @@ public class App {
         return ipValid;
     }
 
-
     /**
      * Handles the command line arguments when the program is first run
      *
@@ -392,7 +391,6 @@ public class App {
             help();
         }
     }
-
 
     /**
      * Generates one UUID for each Kea static mapping
@@ -521,6 +519,4 @@ public class App {
         System.out.println(Message.HOW_TO);
         System.exit(0);
     }
-
-
 }
