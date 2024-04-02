@@ -45,4 +45,4 @@ build/
 /migrate
 /native.sh
 /test.sh
-/graalBuild/
+/graalBuild/**
