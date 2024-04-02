@@ -39,7 +39,6 @@ import static java.lang.StringTemplate.STR;
 
 public class App {
 
-    //private static final String exeFolder = "/Users/michael/temp/Migration/Issues/WaveZero";
     private static final String exeFolder = System.getProperty("user.dir");
     private static final Path outFile = Paths.get(exeFolder,"new_config.xml");
     private static final Path inFile = Paths.get(exeFolder, "config.xml");
