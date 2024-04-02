@@ -36,23 +36,14 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/graalBuild/
 /Releases/
+/config_out.xml
+/new_config.xml
 /c.sh
 /dograal.sh
-/graalBuild/config.xml
-/config_out.xml
-/graalBuild/config_backup.xml
-/new_config.xml
-/graalBuild/config_no_statics.xml
-/graalBuild/config_no_subnets.xml
 /migrate
-/graal1/
-/graal2/
-/graal3/
-/graalBuild/config_no_statics_hard.xml
-/graalBuild/config_no_subnets_hard.xml
-/test.sh
 /native.sh
+/test.sh
 /src/main/java/com/simtechdata/config.xml
 /src/main/java/com/simtechdata/config_kea.xml
-/graalBuild/
