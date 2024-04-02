@@ -6,8 +6,8 @@ public class Reservation {
     @JacksonXmlProperty(isAttribute = true)
     private String uuid = "";
     private String subnet;
-    private String ip_Address;
-    private String hw_Address;
+    private String ip_address;
+    private String hw_address;
     private String hostname = "";
     private String description = "";
 
@@ -27,12 +27,12 @@ public class Reservation {
         this.hostname = hostname;
     }
 
-    public String getHw_Address() {
-        return hw_Address;
+    public String getHw_address() {
+        return hw_address;
     }
 
-    public void setHw_Address(String hw_Address) {
-        this.hw_Address = hw_Address;
+    public void setHw_address(String hw_address) {
+        this.hw_address = hw_address;
     }
 
     public String getDescription() {
@@ -43,12 +43,12 @@ public class Reservation {
         this.description = description;
     }
 
-    public String getIp_Address() {
-        return ip_Address;
+    public String getIp_address() {
+        return ip_address;
     }
 
-    public void setIp_Address(String ip_Address) {
-        this.ip_Address = ip_Address;
+    public void setIp_address(String ip_address) {
+        this.ip_address = ip_address;
     }
 
     public String getUuid() {

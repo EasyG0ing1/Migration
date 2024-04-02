@@ -20,7 +20,7 @@
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"getDescription","parameterTypes":[] }, {"name":"getHostname","parameterTypes":[] }, {"name":"getHw_Address","parameterTypes":[] }, {"name":"getIp_Address","parameterTypes":[] }, {"name":"getSubnet","parameterTypes":[] }, {"name":"getUuid","parameterTypes":[] }]
+  "methods":[{"name":"getDescription","parameterTypes":[] }, {"name":"getHostname","parameterTypes":[] }, {"name":"getHw_address","parameterTypes":[] }, {"name":"getIp_address","parameterTypes":[] }, {"name":"getSubnet","parameterTypes":[] }, {"name":"getUuid","parameterTypes":[] }]
 },
 {
   "name":"com.simtechdata.pojo.Reservations",

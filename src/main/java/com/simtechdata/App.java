@@ -177,8 +177,8 @@ public class App {
                     uuid = getUUID();
                 uuidSet.add(uuid);
                 rsv.setUuid(uuid);
-                rsv.setHw_Address(mac);
-                rsv.setIp_Address(ipAddy);
+                rsv.setHw_address(mac);
+                rsv.setIp_address(ipAddy);
                 rsv.setHostname(hostname);
                 rsv.setDescription(description);
                 rsv.setSubnet(getSubnet(ipAddy, subnet4List));
@@ -227,11 +227,7 @@ public class App {
                 StreamResult result = new StreamResult(writer);
                 transformer.transform(source, result);
                 String pattern = "\\r?\\n\\s+\\r?\\n";
-                String prettyXML = writer.toString().replaceAll(pattern, LF)
-                        .replaceAll("<ip_Address>","<ip_address>")
-                        .replaceAll("</ip_Address>","</ip_address>")
-                        .replaceAll("<hw_Address>","<hw_address>")
-                        .replaceAll("</hw_Address>","</hw_address>");
+                String prettyXML = writer.toString().replaceAll(pattern, LF);
                 outFile.toFile().createNewFile();
                 Files.writeString(outFile, prettyXML, Charset.defaultCharset());
                 System.out.println(Message.SUCCESS);
