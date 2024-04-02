@@ -52,3 +52,4 @@ build/
 /config_no_statics_hard.xml
 /config_no_subnets_hard.xml
 /test.sh
+/native.sh

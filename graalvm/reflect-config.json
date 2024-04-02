@@ -6,6 +6,12 @@
   "name":"[Lcom.fasterxml.jackson.databind.ser.BeanSerializerModifier;"
 },
 {
+  "name":"com.ctc.wstx.stax.WstxInputFactory"
+},
+{
+  "name":"com.ctc.wstx.stax.WstxOutputFactory"
+},
+{
   "name":"com.fasterxml.jackson.databind.ext.Java7SupportImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },

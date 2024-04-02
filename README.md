@@ -124,7 +124,10 @@ Create an Issue or a Pull Request if you want to contribute to the project.
 
 ### Updates
 
-* 2.1.1
+* 2.1.2
+  * Fixed problem where xml tags were in the wrong case in the `new_config.xml`
+ 
+2.1.1
   * Added clear and expanded error messages so that any problems that might happen should always present the user with a clear and exact cause of the problem along with instructions explaining how to correct the problem
 
 * 2.1.0

@@ -31,18 +31,20 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.StringTemplate.STR;
+
 public class App {
 
+    //private static final String exeFolder = "/Users/michael/temp/Migration/Issues/WaveZero";
     private static final String exeFolder = System.getProperty("user.dir");
-    private static final Path outFile = Paths.get(exeFolder, "new_config.xml");
+    private static final Path outFile = Paths.get(exeFolder,"new_config.xml");
     private static final Path inFile = Paths.get(exeFolder, "config.xml");
     private static boolean isCheck = false;
+    private static boolean debug = false;
     private static final String LF = System.getProperty("line.separator");
 
 
@@ -151,18 +153,40 @@ public class App {
          * and the import process will be expecting to see a UUID for the record.
          */
 
+        if(debug){
+            System.out.println("Old Statics");
+        }
+
         List<Reservation> reservationList = new ArrayList<>();
+
+        if(staticMappings.isEmpty()) {
+            System.out.println("Could not find any existing static mappings");
+            System.exit(1);
+        }
+
+        Set<String> uuidSet = new HashSet<>();
         try {
             for (Staticmap m : staticMappings) {
                 Reservation rsv = new Reservation();
+                String mac = m.getMac();
                 String ipAddy = m.getIpaddr();
-                rsv.setUuid(getUUID());
-                rsv.setHw_Address(m.getMac());
-                rsv.setIp_Address(m.getIpaddr());
-                rsv.setHostname(m.getHostname());
-                rsv.setDescription(m.getDescr());
+                String description = m.getDescr();
+                String hostname = m.getHostname();
+                String uuid = getUUID();
+                while(uuidSet.contains(uuid))
+                    uuid = getUUID();
+                uuidSet.add(uuid);
+                rsv.setUuid(uuid);
+                rsv.setHw_Address(mac);
+                rsv.setIp_Address(ipAddy);
+                rsv.setHostname(hostname);
+                rsv.setDescription(description);
                 rsv.setSubnet(getSubnet(ipAddy, subnet4List));
                 reservationList.add(rsv);
+                if(debug) {
+                    String dbs = STR."\{ipAddy}\n\{mac}\{hostname}\n\{description}\n";
+                    System.out.println(dbs);
+                }
             }
         }
         catch (NullPointerException e) {
@@ -203,7 +227,11 @@ public class App {
                 StreamResult result = new StreamResult(writer);
                 transformer.transform(source, result);
                 String pattern = "\\r?\\n\\s+\\r?\\n";
-                String prettyXML = writer.toString().replaceAll(pattern, LF);
+                String prettyXML = writer.toString().replaceAll(pattern, LF)
+                        .replaceAll("<ip_Address>","<ip_address>")
+                        .replaceAll("</ip_Address>","</ip_address>")
+                        .replaceAll("<hw_Address>","<hw_address>")
+                        .replaceAll("</hw_Address>","</hw_address>");
                 outFile.toFile().createNewFile();
                 Files.writeString(outFile, prettyXML, Charset.defaultCharset());
                 System.out.println(Message.SUCCESS);
@@ -356,15 +384,16 @@ public class App {
                         isCheck = true;
                     }
                     case "v", "version", "--version", "-v", "-version" -> {
-                        System.out.println("2.1.1");
+                        System.out.println("2.1.2");
                         System.exit(0);
                     }
                     case "?", "--help", "-help", "help" -> help();
                     case "howto", "how", "--how", "--howto" -> howTo();
+                    case "debug" -> debug = true;
                 }
             }
         }
-        if (argumentPassed && !isCheck) {
+        if (argumentPassed && !isCheck && !debug) {
             help();
         }
     }

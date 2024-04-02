@@ -4,7 +4,7 @@
 
     <groupId>com.simtechdata</groupId>
     <artifactId>Migration</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
     <packaging>jar</packaging>
 
     <name>Migration</name>
@@ -15,7 +15,7 @@
         <mainClass>com.simtechdata.App</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>21</java.version>
+        <java.version>22</java.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven-compiler-plugin>3.13.0</maven-compiler-plugin>
@@ -25,7 +25,6 @@
         <maven-enforcer-plugin>3.4.1</maven-enforcer-plugin>
         <native-maven-plugin>0.9.28</native-maven-plugin>
         <maven-assembly-plugin>3.7.1</maven-assembly-plugin>
-        <graal.version>19.2.1</graal.version>
     </properties>
 
 
@@ -46,7 +45,6 @@
             <version>2.15.1</version>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -97,8 +95,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin}</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>22</source>
+                    <target>22</target>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <!-- Maven Assembly Plugin -->
@@ -162,6 +163,7 @@
                             <buildArgs>
                                 <arg>--no-fallback</arg>
                                 <arg>--verbose</arg>
+                                <arg>--enable-preview</arg>
                                 <arg>-H:+ReportExceptionStackTraces</arg>
                                 <arg>-H:ReflectionConfigurationFiles=${project.basedir}/graalvm/reflect-config.json</arg>
                                 <arg>-H:JNIConfigurationFiles=${project.basedir}/graalvm/jni-config.json</arg>
