@@ -124,6 +124,9 @@ Create an Issue or a Pull Request if you want to contribute to the project.
 
 ### Updates
 
+* 2.1.3
+  * Minor changes to code structure
+ 
 * 2.1.2
   * Fixed problem where xml tags were in the wrong case in the `new_config.xml`
  

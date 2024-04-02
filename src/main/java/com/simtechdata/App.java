@@ -378,7 +378,7 @@ public class App {
                         isCheck = true;
                     }
                     case "v", "version", "--version", "-v", "-version" -> {
-                        System.out.println("2.1.2");
+                        System.out.println("2.1.3");
                         System.exit(0);
                     }
                     case "?", "--help", "-help", "help" -> help();
