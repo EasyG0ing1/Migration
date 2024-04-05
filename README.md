@@ -8,7 +8,7 @@ Migration is a utility that will take your static IP address mappings in OPNsens
 
 [<img src="img/VideoThumb.png" width="100%">](https://youtu.be/9yLQezDKVoY)
 
-[<video src="https://github.com/EasyG0ing1/Migration/blob/main/img/Migrate.mp4" data-canonical-src="https://github.com/EasyG0ing1/Migration/blob/main/img/Migrate.mp4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">]
+<video src="https://github.com/EasyG0ing1/Migration/blob/main/img/Migrate.mp4" data-canonical-src="https://github.com/EasyG0ing1/Migration/blob/main/img/Migrate.mp4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
 
 ### This is a simple tool to use:
 
