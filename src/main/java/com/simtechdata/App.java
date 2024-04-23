@@ -35,16 +35,17 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.StringTemplate.STR;
 
 public class App {
 
     private static final String EXE_FOLDER = System.getProperty("user.dir");
-    private static final Path OUT_FILE     = Paths.get(EXE_FOLDER, "new_config.xml");
-    private static final Path IN_FILE      = Paths.get(EXE_FOLDER, "config.xml");
-    private static final String LF         = System.getProperty("line.separator");
-    private static boolean isCheck         = false;
-    private static boolean debug           = false;
+    private static final Path OUT_FILE = Paths.get(EXE_FOLDER, "new_config.xml");
+    private static final Path IN_FILE = Paths.get(EXE_FOLDER, "config.xml");
+    private static final Path SKIPPED = Paths.get(EXE_FOLDER, "skippedMappings.txt");
+    private static final String NL = System.getProperty("line.separator");
+    private static boolean isCheck = false;
+    private static boolean debug = false;
+    private static final LinkedList<Staticmap> failedStaticmaps = new LinkedList<>();
 
 
     public static void main(String[] args) {
@@ -152,13 +153,13 @@ public class App {
          * and the import process will be expecting to see a UUID for the record.
          */
 
-        if(debug){
+        if (debug) {
             System.out.println("Old Statics");
         }
 
         List<Reservation> reservationList = new ArrayList<>();
 
-        if(staticMappings.isEmpty()) {
+        if (staticMappings.isEmpty()) {
             System.out.println("Could not find any existing static mappings");
             System.exit(1);
         }
@@ -168,11 +169,12 @@ public class App {
             for (Staticmap m : staticMappings) {
                 Reservation rsv = new Reservation();
                 String mac = m.getMac();
-                String ipAddy = m.getIpaddr();
-                String description = m.getDescr();
+                String cid = m.getCid();
+                String ipAddy = m.getIpAddress();
+                String description = m.getDescription();
                 String hostname = m.getHostname();
                 String uuid = getUUID();
-                while(uuidSet.contains(uuid))
+                while (uuidSet.contains(uuid))
                     uuid = getUUID();
                 uuidSet.add(uuid);
                 rsv.setUuid(uuid);
@@ -182,7 +184,7 @@ public class App {
                 rsv.setDescription(description);
                 rsv.setSubnet(getSubnet(ipAddy, subnet4List));
                 reservationList.add(rsv);
-                if(debug) {
+                if (debug) {
                     String dbs = STR."\{ipAddy}\n\{mac}\{hostname}\n\{description}\n";
                     System.out.println(dbs);
                 }
@@ -226,10 +228,26 @@ public class App {
                 StreamResult result = new StreamResult(writer);
                 transformer.transform(source, result);
                 String pattern = "\\r?\\n\\s+\\r?\\n";
-                String prettyXML = writer.toString().replaceAll(pattern, LF);
+                String prettyXML = writer.toString().replaceAll(pattern, NL);
                 OUT_FILE.toFile().createNewFile();
                 Files.writeString(OUT_FILE, prettyXML, Charset.defaultCharset());
-                System.out.println(Message.SUCCESS);
+                if (!failedStaticmaps.isEmpty()) {
+                    StringBuilder fsb = new StringBuilder(Message.HAS_CID_ONLY());
+                    for (Staticmap staticmap : failedStaticmaps) {
+                        String ipAddress = staticmap.getIpAddress();
+                        String hostname = staticmap.getHostname();
+                        String description = staticmap.getDescription();
+                        fsb.append(Message.EXCLUDED_STATIC_MAPPING(ipAddress, hostname, description));
+                    }
+                    Files.writeString(SKIPPED, fsb.toString(), Charset.defaultCharset());
+                    fsb.append(NL).append("This information has also been saved to this text file for your convenience:");
+                    fsb.append(NL).append(STR."\{NL}\t\{SKIPPED.toFile().getAbsolutePath()}");
+                    fsb.append(NL);
+                    System.out.println(fsb);
+                }
+                else {
+                    System.out.println(Message.SUCCESS);
+                }
                 System.exit(0);
             }
             else {
@@ -274,50 +292,63 @@ public class App {
                     NodeList macNodeList = element.getElementsByTagName("mac");
                     Node macNode = macNodeList.item(0);
 
-                    if (macNodeList == null || macNode == null) {
-                        System.out.println(Message.GENERIC_NODE_NOT_FOUND("<mac>", "mac"));
-                        System.exit(1);
-                    }
+                    NodeList cidNodeList = element.getElementsByTagName("cid");
+                    Node cidNode = cidNodeList.item(0);
 
                     NodeList ipNodeList = element.getElementsByTagName("ipaddr");
                     Node ipNode = ipNodeList.item(0);
 
-                    if (ipNodeList == null || ipNode == null) {
-                        System.out.println(Message.GENERIC_NODE_NOT_FOUND("<ipaddr>", "ip"));
+                    NodeList hostnameNodeList = element.getElementsByTagName("hostname");
+                    Node hostnameNode = hostnameNodeList.item(0);
+
+                    NodeList descriptionNodeList = element.getElementsByTagName("descr");
+                    Node descriptionNode = descriptionNodeList.item(0);
+
+                    boolean hasMac = macNode != null;
+                    boolean hasCid = cidNode != null;
+                    boolean hasIP = ipNode != null;
+                    boolean hostnameNotNull = hostnameNode != null;
+                    boolean descriptionNotNull = descriptionNode != null;
+
+                    String macAddress = hasMac ? macNode.getTextContent() : "";
+                    String cidString = hasCid ? cidNode.getTextContent() : "";
+                    String ipAddress = hasIP ? ipNode.getTextContent() : "";
+                    String hostname = hostnameNotNull ? hostnameNode.getTextContent() : "";
+                    String description = descriptionNotNull ? descriptionNode.getTextContent() : "";
+
+                    if (!hasIP) {
+                        System.out.println(Message.STATIC_MAP_IP_NOT_FOUND(macAddress, cidString, hostname, description));
                         System.exit(1);
                     }
 
-                    String macAddress = macNode.getTextContent();
-                    String ipAddress = ipNode.getTextContent();
-
-                    if (!validMac(macAddress)) {
-                        System.out.println(Message.INVALID_MAC_ADDRESS(macAddress));
+                    if (hasMac && !validMac(macAddress)) {
+                        System.out.println(Message.INVALID_MAC_ADDRESS(macAddress, cidString, hostname, description));
                         System.exit(1);
                     }
 
-                    if (!validIPAddress(ipAddress)) {
+                    if (hasIP && !validIPAddress(ipAddress)) {
                         System.out.println(Message.INVALID_IP_ADDRESS(ipAddress));
                         System.exit(1);
                     }
 
-                    Staticmap staticmap = new Staticmap(ipAddress, macAddress);
-
-                    if (staticmap == null) {
-                        System.out.println(Message.NULL_STATIC_MAP);
-                        System.exit(1);
+                    if (hasIP && hasMac) {
+                        Staticmap staticmap = new Staticmap(macAddress, ipAddress, hostname, description);
+                        staticmaps.addLast(staticmap);
                     }
 
-                    NodeList hostnameNodeList = element.getElementsByTagName("hostname");
-                    if (hostnameNodeList.getLength() > 0) {
-                        staticmap.setHostname(hostnameNodeList.item(0).getTextContent());
+                    if (!hasMac) {
+                        if (hasCid) {
+                            Staticmap staticmap = new Staticmap(cidString, ipAddress);
+                            staticmap.setHostname(hostname);
+                            staticmap.setDescription(description);
+                            failedStaticmaps.addLast(staticmap);
+                        }
+                        else {
+                            System.out.println(Message.MAC_CID_NODE_NOT_FOUND(ipAddress, hostname, description));
+                            System.exit(1);
+                        }
                     }
 
-                    NodeList descriptionNodeList = element.getElementsByTagName("descr");
-                    if (descriptionNodeList.getLength() > 0) {
-                        staticmap.setDescription(descriptionNodeList.item(0).getTextContent());
-                    }
-
-                    staticmaps.add(staticmap);
                 }
                 else {
                     System.out.println(Message.NO_STATIC_MAP);
@@ -378,7 +409,7 @@ public class App {
                         isCheck = true;
                     }
                     case "v", "version", "--version", "-v", "-version" -> {
-                        System.out.println("2.1.3");
+                        System.out.println("2.1.4");
                         System.exit(0);
                     }
                     case "?", "--help", "-help", "help" -> help();

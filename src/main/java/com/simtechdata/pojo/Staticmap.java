@@ -2,37 +2,37 @@ package com.simtechdata.pojo;
 
 public class Staticmap {
 
-    public Staticmap(String ipaddr, String mac) {
-        this.ipaddr = ipaddr;
+    public Staticmap(String mac, String ipAddress, String hostname, String description) {
         this.mac = mac;
-    }
-
-    private final String ipaddr;
-    private final String mac;
-    private String hostname = "";
-    private String descr = "";
-
-    public String getDescr() {
-        return descr;
-    }
-
-    public void setDescription(String descr) {
-        this.descr = descr;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
+        this.cid = "";
+        this.ipAddress = ipAddress;
         this.hostname = hostname;
+        this.description = description;
     }
 
-    public String getIpaddr() {
-        return ipaddr;
+    public Staticmap(String cid, String ipAddress) {
+        this.mac = "";
+        this.cid = cid;
+        this.ipAddress = ipAddress;
     }
 
-    public String getMac() {
-        return mac;
-    }
+    private final String mac;
+    private final String cid;
+    private final String ipAddress;
+    private String hostname = "";
+    private String description = "";
+
+    public void setHostname(String hostname) { this.hostname = hostname; }
+
+    public void setDescription(String descr) { this.description = descr; }
+
+    public String getMac() { return mac; }
+
+    public String getCid() { return cid; }
+
+    public String getIpAddress() { return ipAddress; }
+
+    public String getHostname() { return hostname; }
+
+    public String getDescription() { return description; }
 }

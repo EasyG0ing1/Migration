@@ -124,6 +124,10 @@ Create an Issue or a Pull Request if you want to contribute to the project.
 
 ### Updates
 
+* 2.1.4
+  * Modified handling of ISC DHCP mappings when no MAC address exists where a CID value is provided
+  * Updated the static mapping error messages so that they include relevant details from the static map, making it easier to locate the record for correction 
+ 
 * 2.1.3
   * Minor changes to code structure
  

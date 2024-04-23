@@ -48,3 +48,13 @@ build/
 /graalBuild/**
 /GB/
 /GB/*
+/config.xml
+/HotConfig1.xml
+/HotConfig2.xml
+/KeaDisabled.xml
+/KeaEnabled.xml
+/HotConfigCID.xml
+/testCID.sh
+/HotConfigBadIP.xml
+/HotConfigBadMac.xml
+/testNative.sh
