@@ -58,11 +58,11 @@ No guarantees with older versions of these operating systems.
 
 Every step along the way is checked for problems and if any are found, the program tells you exactly what you need to look for to settle the problem.
 
-## Compiling
+# Compiling
 
 If you are a glutton for punishment and you want to compile the code yourself, these instructions will work.
 
-### Windows
+## Windows
 
 [Click Here](compile/Windows.md) to learn how to setup the Windows build environment
 
@@ -86,7 +86,7 @@ much RAM you have. Be patient!
 
 The executable will be here `C:\github\Migration\target\migrate.exe`
 
-### MacOS and Linux
+## MacOS and Linux
 
 - First, install SDK Man
 ```shell
@@ -153,7 +153,7 @@ ls -l target
 chmod +x target/migrate
 ```
 
-### Issues
+# Issues
 If you have any problems that you can't figure out, create an issue and I will be happy to assist.
 
 ### Contributing
