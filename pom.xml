@@ -4,7 +4,7 @@
 
     <groupId>com.simtechdata</groupId>
     <artifactId>Migration</artifactId>
-    <version>2.1.4</version>
+    <version>2.2.0</version>
     <packaging>jar</packaging>
 
     <name>Migration</name>
@@ -19,11 +19,11 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven-compiler-plugin>3.13.0</maven-compiler-plugin>
-        <maven-jar-plugin>3.3.0</maven-jar-plugin>
+        <maven-jar-plugin>3.4.1</maven-jar-plugin>
         <exec-maven-plugin>3.1.0</exec-maven-plugin>
         <versions-maven-plugin>2.16.2</versions-maven-plugin>
         <maven-enforcer-plugin>3.4.1</maven-enforcer-plugin>
-        <native-maven-plugin>0.9.28</native-maven-plugin>
+        <native-maven-plugin>0.10.1</native-maven-plugin>
         <maven-assembly-plugin>3.7.1</maven-assembly-plugin>
     </properties>
 
@@ -32,21 +32,30 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.17.0</version>
+            <version>2.17.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-            <version>2.17.0</version>
+            <version>2.17.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
+            <version>2.16.1</version>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <!-- Maven Versions -->
             <plugin>
@@ -95,8 +104,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin}</version>
                 <configuration>
-                    <source>22</source>
-                    <target>22</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <compilerArgs>
                         <arg>--enable-preview</arg>
                     </compilerArgs>
@@ -116,6 +125,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <finalName>${name}</finalName>
                 </configuration>
                 <executions>
                     <execution>
@@ -156,14 +166,15 @@
                         <version>${native-maven-plugin}</version>
                         <extensions>true</extensions>
                         <configuration>
+                            <target>${java.version}</target>
                             <imageName>${imageName}</imageName>
                             <mainClass>${mainClass}</mainClass>
                             <verbose>true</verbose>
-                            <imageName>${imageName}</imageName>
                             <buildArgs>
                                 <arg>--no-fallback</arg>
                                 <arg>--verbose</arg>
                                 <arg>--enable-preview</arg>
+                                <arg>-march=compatibility</arg>
                                 <arg>-H:+ReportExceptionStackTraces</arg>
                                 <arg>-H:ReflectionConfigurationFiles=${project.basedir}/graalvm/reflect-config.json</arg>
                                 <arg>-H:JNIConfigurationFiles=${project.basedir}/graalvm/jni-config.json</arg>
@@ -175,5 +186,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

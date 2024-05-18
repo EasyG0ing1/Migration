@@ -36,6 +36,12 @@ The binaries were compiled and tested in these operating systems
 - MacOS Sonoma 14.2.1
 - Ubuntu 22.0.4 LTS (Jammy Jellyfish)
 
+With MacOS or Linux you might need to set the program as executable
+
+```bash
+chmod +x migrate
+```
+
 No guarantees with older versions of these operating systems.
 
 ## Summary of what this utility does
@@ -123,6 +129,15 @@ If you have any problems that you can't figure out, create an issue and I will b
 Create an Issue or a Pull Request if you want to contribute to the project.
 
 ### Updates
+
+* 2.2.0
+    * Cleaned up code to simplify
+    * Removed unused pojos
+    * Added enums Package
+    * Added migrate Package
+    * Added Migrate class
+    * Cleaned up Message class and removed unused objects
+    * Added Mode enum
 
 * 2.1.4
   * Modified handling of ISC DHCP mappings when no MAC address exists where a CID value is provided

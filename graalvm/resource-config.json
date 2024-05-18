@@ -7,12 +7,11 @@
   }, {
     "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
   }, {
-    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
-  }, {
-    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLOutputFactory\\E"
-  }, {
     "pattern":"\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
   }, {
+    "pattern": "\\Qversion.properties\\E"
+  },
+    {
     "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
   }, {
     "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/XMLEntities.properties\\E"
@@ -29,8 +28,5 @@
   }, {
     "name":"sun.text.resources.cldr.FormatData",
     "locales":["en", "en-US", "und"]
-  }, {
-    "name":"sun.util.resources.cldr.CalendarData",
-    "locales":["und"]
   }]
 }

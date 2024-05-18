@@ -1,16 +1,19 @@
 target/
+target/**
+target/*
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/**
+.idea/*
 *.iws
 *.iml
 *.ipr
+.mvn/**
+.mvn/*
+
 
 ### Eclipse ###
 .apt_generated
@@ -28,6 +31,8 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
+build/**
+build/*
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -36,25 +41,20 @@ build/
 
 ### Mac OS ###
 .DS_Store
-/graalBuild/
-/Releases/
-/config_out.xml
-/new_config.xml
-/c.sh
-/dograal.sh
-/migrate
-/native.sh
-/test.sh
-/graalBuild/**
-/GB/
-/GB/*
+/graalvm
+/graalvm/**
+/graalvm/*
+/build
+/build/**
+/build/*
+/.idea
+/.idea/**
+/.idea/*
+/.mvn
+/.mvn/**
+/.mvn/*
+/target
+/target/**
+/target/*
 /config.xml
-/HotConfig1.xml
-/HotConfig2.xml
-/KeaDisabled.xml
-/KeaEnabled.xml
-/HotConfigCID.xml
-/testCID.sh
-/HotConfigBadIP.xml
-/HotConfigBadMac.xml
-/testNative.sh
+/new_config.xml

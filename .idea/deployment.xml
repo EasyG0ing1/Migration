@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="10.10.10.36" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="10.10.10.13" deleteMissingItems="true" confirmBeforeUploading="false" confirmBeforeDeletion="false" autoUploadExternalChanges="true">
+    <option name="confirmBeforeDeletion" value="false" />
     <option name="confirmBeforeUploading" value="false" />
     <serverData>
-      <paths name="10.10.10.36">
+      <paths name="10.10.10.13">
         <serverdata>
           <mappings>
             <mapping deploy="/java/Migration" local="$PROJECT_DIR$" web="/" />
           </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/build/mac" />
+          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>
