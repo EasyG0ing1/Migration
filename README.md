@@ -111,13 +111,14 @@ sudo apt install build-essential libz-dev zlib1g-dev -y
 ```shell
 git clone https://github.com/EasyG0ing1/Migration.git
 cd Migration
-mvn clean -Pnative native:compile
+chmod +x compile.sh
+./compile.sh
 ls -l target
 ```
 - You should see the `migrate` binary in the target folder.
 - You may need to set it as executable
  ```shell
-chmod +x migrate
+chmod +x target/migrate
 ```
 
 Depending on your machine, the compiling process can take anywhere from a minute or so up to several minutes or even well over 10 minutes. It all depends on your processor and your memory.
