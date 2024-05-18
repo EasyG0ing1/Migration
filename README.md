@@ -66,12 +66,16 @@ If you are a glutton for punishment and you want to compile the code yourself, t
 
 [Click Here](compile/Windows.md) to learn how to setup the Windows build environment
 
-Then
+You should have made the `github` folder off the root. If not:
 
 ```bash
-cd C:\
-mkdir github
-cd github
+mkdir C:\github
+```
+
+Next
+
+```bash
+cd C:\github
 git clone https://github.com/EasyG0ing1/Migration.git
 cd Migration\compile
 compile.bat
