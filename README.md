@@ -59,7 +59,29 @@ No guarantees with older versions of these operating systems.
 Every step along the way is checked for problems and if any are found, the program tells you exactly what you need to look for to settle the problem.
 
 ## Compiling
-If you are a glutton for punishment and you want to compile the code yourself, these instructions will work for MacOS and Linux (sorry Windows, no love today :-)
+
+### Windows
+
+[Click Here](compile/Windows.md) to learn how to setup the Windows build environment
+
+Then
+
+```bash
+cd C:\
+mkdir github
+cd github
+git clone https://github.com/EasyG0ing1/Migration.git
+cd Migration\compile
+compile.bat
+```
+
+It could take anywhere from a minute to ten minutes or longer to compile the native image depending on your CPU and how
+much RAM you have. Be patient!
+
+### MacOS and Linux
+
+If you are a glutton for punishment and you want to compile the code yourself, these instructions will work for MacOS
+and Linux.
 - First, install SDK Man
 ```shell
 curl -s "https://get.sdkman.io" | bash
