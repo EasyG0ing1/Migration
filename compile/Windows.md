@@ -42,7 +42,7 @@ add a path to the `bin` folder of both GraalVM and Apache Maven and they should 
 
 Keep clicking OK to get out of those windows.
 
-Next, we need to install `winget` which will streamline the install of the remaining tools that we need to install.
+## Install Winget
 
 Open a Powershell as administrator by tapping the Windows key on your keyboard, then just type in powershell and click
 on the Run as Administarator oprion.
@@ -108,7 +108,8 @@ Then when you see this message
 
 You can close the installer.
 
-Now, open a `CMD` window (again, the easiest way to do that is to hold down the Windows key on your keyboard and then
+Now, open a new `CMD` window (again, the easiest way to do that is to hold down the Windows key on your keyboard and
+then
 press `R`; then type in `cmd` and hit enter)
 
 Next, create a github folder off the root
