@@ -122,4 +122,4 @@ type: `mvn --version` and hit enter. You should see something that looks like th
 
 [<img src="../img/Win4.png" width="100%">]()
 
-Go back to the [README](../README.md) 
+Go back to the [README](https://github.com/EasyG0ing1/Migration) 

@@ -78,6 +78,8 @@ compile.bat
 It could take anywhere from a minute to ten minutes or longer to compile the native image depending on your CPU and how
 much RAM you have. Be patient!
 
+The executable will be here `C:\github\Migration\target\migrate.exe`
+
 ### MacOS and Linux
 
 If you are a glutton for punishment and you want to compile the code yourself, these instructions will work for MacOS
