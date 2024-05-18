@@ -60,6 +60,8 @@ Every step along the way is checked for problems and if any are found, the progr
 
 ## Compiling
 
+If you are a glutton for punishment and you want to compile the code yourself, these instructions will work.
+
 ### Windows
 
 [Click Here](compile/Windows.md) to learn how to setup the Windows build environment
@@ -82,8 +84,6 @@ The executable will be here `C:\github\Migration\target\migrate.exe`
 
 ### MacOS and Linux
 
-If you are a glutton for punishment and you want to compile the code yourself, these instructions will work for MacOS
-and Linux.
 - First, install SDK Man
 ```shell
 curl -s "https://get.sdkman.io" | bash
