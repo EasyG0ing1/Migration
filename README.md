@@ -153,8 +153,6 @@ ls -l target
 chmod +x target/migrate
 ```
 
-Depending on your machine, the compiling process can take anywhere from a minute or so up to several minutes or even well over 10 minutes. It all depends on your processor and your memory.
-
 ### Issues
 If you have any problems that you can't figure out, create an issue and I will be happy to assist.
 
