@@ -115,6 +115,10 @@ chmod +x compile.sh
 ./compile.sh
 ls -l target
 ```
+
+- It can take some time to build the native-image. On a 2019 MBP it takes about a minute. On older hardware it can take
+  up to 10 minutes or more, it depends on your CPU and how much RAM you have. Just be patient, if there is a problem, it
+  will throw an error and dump out so if that didn't happen, then it's working.
 - You should see the `migrate` binary in the target folder.
 - You may need to set it as executable
  ```shell
